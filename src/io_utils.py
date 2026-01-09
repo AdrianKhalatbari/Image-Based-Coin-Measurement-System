@@ -7,22 +7,12 @@ from typing import List, Tuple
 import numpy as np
 import imageio.v3 as iio
 
-
-def list_image_files(root: Path, exts: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")) -> List[Path]:
+def list_image_files(
+    root: Path,
+    exts: Tuple[str, ...] = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+) -> List[Path]:
     """
     Recursively list image files under a directory.
-
-    Parameters
-    ----------
-    root : Path
-        Root directory to search.
-    exts : tuple[str, ...]
-        Allowed image extensions.
-
-    Returns
-    -------
-    List[Path]
-        Sorted list of image file paths.
     """
     files: List[Path] = []
     for p in root.rglob("*"):
@@ -34,22 +24,8 @@ def list_image_files(root: Path, exts: Tuple[str, ...] = (".png", ".jpg", ".jpeg
 
 def read_image_as_float(path: Path) -> np.ndarray:
     """
-    Read an image from the disk and convert it to a float64 numpy array.
-
-    Notes
-    -----
-    - Keeps original dynamic range (e.g., 0..255 or 0..65535) but converts dtype to float64.
-    - Returns a 2D array for grayscale images, or 3D for color images.
-
-    Parameters
-    ----------
-    path : Path
-        Image path.
-
-    Returns
-    -------
-    np.ndarray
-        Image as float64.
+    Read an image from disk and convert it to float64 numpy array.
+    Keeps original dynamic range (uint8 -> 0..255, uint16 -> 0..65535).
     """
     img = iio.imread(path)
     return np.asarray(img, dtype=np.float64)

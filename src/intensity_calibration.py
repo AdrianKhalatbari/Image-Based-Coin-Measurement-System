@@ -3,7 +3,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, List
+from typing import List
 
 import numpy as np
 
@@ -12,123 +12,93 @@ from src.io_utils import list_image_files, read_image_as_float
 
 @dataclass
 class MasterFrames:
-    """
-    Container for master calibration images used in intensity correction.
-    """
     bias: np.ndarray      # B_hat
-    dark: np.ndarray      # D_hat
-    flat: np.ndarray      # F_hat (already scaled to mean=1)
+    dark: np.ndarray      # D_hat  (bias-corrected)
+    flat: np.ndarray      # F_hat  (illumination field, mean=1)
+
+
+def _to_gray(img: np.ndarray) -> np.ndarray:
+    img = img.astype(np.float64)
+    if img.ndim == 3:
+        img = img.mean(axis=2)
+    return img
 
 
 def _mean_stack(images: List[np.ndarray]) -> np.ndarray:
-    """
-    Compute per-pixel mean of a list of images.
-    Assumes all images have identical shape.
-    """
     if len(images) == 0:
         raise ValueError("No images found to average.")
-    stack = np.stack(images, axis=0)
-    return np.mean(stack, axis=0)
+    ref_shape = images[0].shape
+    for im in images:
+        if im.shape != ref_shape:
+            raise ValueError("All images must have the same shape.")
+    return np.mean(np.stack(images, axis=0), axis=0)
 
 
 def build_master_from_dir(dir_path: Path) -> np.ndarray:
-    """
-    Build a master image (mean image) from all image files in a directory (recursive).
-
-    Parameters
-    ----------
-    dir_path : Path
-        Directory containing calibration frames.
-
-    Returns
-    -------
-    np.ndarray
-        Mean image as float64.
-    """
     files = list_image_files(dir_path)
     if len(files) == 0:
         raise FileNotFoundError(f"No image files found under: {dir_path}")
-
-    imgs = [read_image_as_float(p) for p in files]
-
-    # If images are RGB, convert to grayscale by luminance-like average (simple mean).
-    # You can change this later if your pipeline prefers a specific channel.
-    if imgs[0].ndim == 3:
-        imgs = [np.mean(im, axis=2) for im in imgs]
-
+    imgs = [_to_gray(read_image_as_float(p)) for p in files]
     return _mean_stack(imgs)
 
 
-def scale_flat_to_mean_one(flat: np.ndarray, eps: float = 1e-12) -> np.ndarray:
+def _gaussian_blur(image: np.ndarray, sigma: float) -> np.ndarray:
     """
-    Scale a flat-field image so that its mean becomes 1.0, as required by the assignment.
-
-    Parameters
-    ----------
-    flat : np.ndarray
-        Flat-field image (mean image).
-    eps : float
-        Small constant to avoid division by zero.
-
-    Returns
-    -------
-    np.ndarray
-        Scaled flat-field image with mean ~ 1.
+    Large-scale smoothing to estimate illumination field.
+    Uses OpenCV if available, otherwise falls back to a simple separable approximation.
     """
-    m = float(np.mean(flat))
-    return flat / (m + eps)
+    try:
+        import cv2
+        # ksize=0 lets OpenCV compute from sigma
+        return cv2.GaussianBlur(image.astype(np.float32), ksize=(0, 0), sigmaX=sigma).astype(np.float64)
+    except Exception:
+        # Fallback: very simple blur via repeated box filter
+        # (Not as good as Gaussian, but prevents division by checkerboard pattern.)
+        out = image.copy()
+        for _ in range(10):
+            out = (out +
+                   np.roll(out, 1, 0) + np.roll(out, -1, 0) +
+                   np.roll(out, 1, 1) + np.roll(out, -1, 1)) / 5.0
+        return out
 
 
-def build_master_frames(bias_dir: Path, dark_dir: Path, flat_dir: Path) -> MasterFrames:
+def build_master_frames(
+    bias_dir: Path,
+    dark_dir: Path,
+    flat_dir: Path,
+    flat_blur_sigma: float = 60.0,
+    eps: float = 1e-12
+) -> MasterFrames:
     """
-    Build master bias, dark, and flat frames from directories.
-    Flat is scaled to mean=1 as required.  [oai_citation:4‡Assignment_description.pdf](sediment://file_00000000c94071f7a735a3e054605241)
+    Build properly corrected masters.
+
+    Steps:
+      B = mean(bias)
+      D = mean(dark) - B
+      F_raw = mean(flat) - B - D
+      F_illum = smooth(F_raw)   (remove checkerboard/pattern)
+      F = F_illum / mean(F_illum)
     """
     bias_hat = build_master_from_dir(bias_dir)
-    dark_hat = build_master_from_dir(dark_dir)
-    flat_hat = build_master_from_dir(flat_dir)
 
-    flat_hat = scale_flat_to_mean_one(flat_hat)
+    dark_raw = build_master_from_dir(dark_dir)
+    dark_hat = dark_raw - bias_hat
+
+    flat_raw = build_master_from_dir(flat_dir)
+    flat_corr = flat_raw - bias_hat - dark_hat
+
+    # IMPORTANT: remove checkerboard/pattern by strong smoothing
+    flat_illum = _gaussian_blur(flat_corr, sigma=flat_blur_sigma)
+
+    # Avoid zeros / negatives causing division problems
+    flat_illum = np.clip(flat_illum, eps, None)
+
+    flat_hat = flat_illum / (float(flat_illum.mean()) + eps)
 
     return MasterFrames(bias=bias_hat, dark=dark_hat, flat=flat_hat)
 
 
-def correct_measurement(
-    measurement: np.ndarray,
-    masters: MasterFrames,
-    eps: float = 1e-12
-) -> np.ndarray:
-    """
-    Apply intensity correction to a measurement image using master bias/dark/flat.
-
-    Implements the standard correction:
-        R = (measurement - B_hat - D_hat) / F_hat_scaled
-
-    Notes
-    -----
-    - Flat is assumed scaled to mean=1.  [oai_citation:5‡Assignment_description.pdf](sediment://file_00000000c94071f7a735a3e054605241)
-    - Output is float64.
-
-    Parameters
-    ----------
-    measurement : np.ndarray
-        Raw measurement image.
-    masters : MasterFrames
-        Master calibration images.
-    eps : float
-        Avoid division by zero.
-
-    Returns
-    -------
-    np.ndarray
-        Corrected image.
-    """
-    # Convert possible RGB measurement to grayscale in the same way as masters.
-    meas = measurement.astype(np.float64)
-    if meas.ndim == 3:
-        meas = np.mean(meas, axis=2)
-
+def correct_measurement(measurement: np.ndarray, masters: MasterFrames, eps: float = 1e-12) -> np.ndarray:
+    meas = _to_gray(measurement)
     numerator = meas - masters.bias - masters.dark
-    denom = masters.flat
-
-    return numerator / (denom + eps)
+    return numerator / (masters.flat + eps)
