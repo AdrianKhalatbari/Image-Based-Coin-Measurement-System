@@ -13,10 +13,6 @@ This project implements a complete image processing pipeline for detecting and s
 ## 📁 Project Structure
 You can paste this directly into your README.md:
 
-## Project Structure
-
-## Project Structure
-
 ```
 root/
 ├── step1_calibration.py        # Step 1: Intensity calibration
@@ -77,7 +73,7 @@ The script will:
 5. Save all intermediate and final results to the `output/` directory
 
 
-## 🔬 Pipeline Details
+## Pipeline Details
 
 ### Step 1: Intensity Calibration
 
@@ -141,7 +137,7 @@ The script will:
 - `segment_coins()` - Complete segmentation pipeline
 - `create_visualization()` - Generate annotated output images
 
-## 📊 Output Files
+## Output Files
 
 For each processed image, the pipeline generates:
 
@@ -154,12 +150,12 @@ For each processed image, the pipeline generates:
 | `image_N_pipeline.png` | Side-by-side comparison of all stages |
 
 **Visualization Legend:**
-- 🟢 **Green contours** - Detected coin boundaries
-- 🔵 **Blue rectangles** - Bounding boxes
-- 🔴 **Red dots** - Coin centers
-- 🟢 **Green labels** - Coin numbers
+- **Green contours** - Detected coin boundaries
+- **Blue rectangles** - Bounding boxes
+- **Red dots** - Coin centers
+- **Green labels** - Coin numbers
 
-## 📈 Performance
+## Performance
 
 **Overall Accuracy:** 70.4% (50 out of 71 coins detected)
 
@@ -169,11 +165,11 @@ For each processed image, the pipeline generates:
 ```
 | Image | Expected | Detected | Accuracy |
 |-------|----------|----------|----------|
-| _DSC1772 | 6 | 6 | 100% ✅ |
+| _DSC1772 | 6 | 6 | 100% |
 | _DSC1773 | 5 | 2 | 40% |
 | _DSC1774 | 8 | 7 | 87.5% |
 | _DSC1775 | 7 | 3 | 42.8% |
-| _DSC1776 | 9 | 9 | 100% ✅ |
+| _DSC1776 | 9 | 9 | 100% |
 | _DSC1777 | 6 | 4 | 66.7% |
 ```
 **Measurements Set 2:**
@@ -182,21 +178,21 @@ For each processed image, the pipeline generates:
 |-------|----------|----------|----------|
 | _DSC1778 | 4 | 2 | 50% |
 | _DSC1779 | 8 | 5 | 62.5% |
-| _DSC1780 | 4 | 4 | 100% ✅ |
+| _DSC1780 | 4 | 4 | 100% |
 | _DSC1781 | 5 | 3 | 60% |
 | _DSC1782 | 9 | 6 | 66.7% |
 | _DSC1783 | 5 | 3 | 60% |
 ```
 ### Strengths
-- ✅ **Perfect detection on plain backgrounds** (100% accuracy on 3 images)
-- ✅ **Robust intensity calibration** - Effectively removes sensor artifacts
-- ✅ **Handles imperfect circles** - Flexible shape criteria
-- ✅ **Works with various lighting conditions** - Adaptive thresholding
+- **Perfect detection on plain backgrounds** (100% accuracy on 3 images)
+- **Robust intensity calibration** - Effectively removes sensor artifacts
+- **Handles imperfect circles** - Flexible shape criteria
+- **Works with various lighting conditions** - Adaptive thresholding
 
 ### Known Limitations
-- ⚠️ **Coins on textured backgrounds** - Checkerboard patterns cause coins to merge
-- ⚠️ **Touching/overlapping coins** - Detected as single blob
-- ⚠️ **Very small coins** - May fall below minimum area threshold
+- **Coins on textured backgrounds** - Checkerboard patterns cause coins to merge
+- **Touching/overlapping coins** - Detected as single blob
+- **Very small coins** - May fall below minimum area threshold
 
 ### Future Improvements
 To achieve higher accuracy, consider implementing:
@@ -205,7 +201,7 @@ To achieve higher accuracy, consider implementing:
 - **Deep learning** - CNN-based coin detection
 - **Color information** - Use RGB channels for better separation
 
-## 🛠️ Technical Requirements
+## Technical Requirements
 
 - **Python:** 3.13 or higher
 - **NumPy:** 1.24.0+ (Numerical operations)
@@ -213,7 +209,7 @@ To achieve higher accuracy, consider implementing:
 - **Matplotlib:** 3.7.0+ (Visualization)
 - **scikit-image:** 0.21.0+ (Additional image processing utilities)
 
-## 📝 Algorithm Details
+## Algorithm Details
 
 ### Flat-Field Correction Theory
 
@@ -248,34 +244,3 @@ Formula ensures corrected image has uniform response across sensor.
   - Range: 0 to 1
   - ~0.785 = perfect circle in square
   - <0.5 = poor bounding box fit
-
-## 🤝 Contributing
-
-This project was developed as part of a Digital Image Processing course assignment. Feel free to:
-- Report issues
-- Suggest improvements
-- Fork and extend the pipeline
-
-## 📄 License
-
-This project is for educational purposes.
-
-## 🙏 Acknowledgments
-
-- Course: Digital Image and Image Processing
-- Calibration data: DIIP image dataset
-- OpenCV community for excellent documentation
-
-## 📞 Support
-
-For questions or issues:
-1. Check the generated output images in `output/`
-2. Review terminal output for detailed processing logs
-3. Verify input data structure matches expected format
-4. Ensure all dependencies are correctly installed
-
----
-
-**Last Updated:** 2026-01-12
-**Version:** 1.0
-**Status:** Production Ready ✅
