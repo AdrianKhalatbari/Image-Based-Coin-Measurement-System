@@ -2,7 +2,7 @@
 
 A modular Python pipeline for automated coin detection and segmentation using flat-field correction, edge-based preprocessing, and shape-based filtering.
 
-## 🎯 Overview
+## Overview
 
 This project implements a complete image processing pipeline for detecting and segmenting coins from digital photographs. It addresses challenges like uneven illumination, sensor noise, textured backgrounds (checkerboards), and overlapping coins through a three-step approach:
 
@@ -10,7 +10,7 @@ This project implements a complete image processing pipeline for detecting and s
 2. **Preprocessing** - Edge detection and morphological operations to separate coins
 3. **Segmentation** - Contour analysis and shape filtering to extract individual coins
 
-## 📁 Project Structure
+## Project Structure
 You can paste this directly into your README.md:
 
 ```
