@@ -11,7 +11,6 @@ This project implements a complete image processing pipeline for detecting and s
 3. **Segmentation** - Contour analysis and shape filtering to extract individual coins
 
 ## Project Structure
-You can paste this directly into your README.md:
 
 ```
 root/
