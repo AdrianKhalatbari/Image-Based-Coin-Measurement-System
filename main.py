@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 def main():
-    measurements_dir = Path("data/DIIP-images-measurements-1/DIIP-images/Measurements")
+    measurements_dir = Path("data/DIIP-images-measurements-2/DIIP-images/Measurements")
 
     # Load calibration frames
     bias_frame, dark_frame, flat_frame = calibrate_intensity("data")
@@ -19,8 +19,9 @@ def main():
     
     for i, measurement in enumerate(measurement_images):
         print(f"\nProcessing image {i+1}: {measurement.shape}")
-        coin_counts = estim_coins(measurement, bias_frame, dark_frame, flat_frame)
-        print(f"Coin counts for image {i+1}: {coin_counts}")
+        coin_counts_width, coin_counts_height = estim_coins(measurement, bias_frame, dark_frame, flat_frame, i)
+        print(f"Coin counts for image {i+1} (width): {coin_counts_width}")
+        print(f"Coin counts for image {i+1} (height): {coin_counts_height}")
         
         
 if __name__ == "__main__":

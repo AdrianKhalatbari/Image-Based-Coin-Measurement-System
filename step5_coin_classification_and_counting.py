@@ -25,7 +25,7 @@ def classify_coin(coins, px_to_mm_width_ratio, px_to_mm_height_ratio):
     Returns:
         dict: Dictionary with counts of each coin type
     """
-    coin_counts = {
+    coin_counts_width = {
         '5c': 0,
         '10c': 0,
         '20c': 0,
@@ -33,23 +33,43 @@ def classify_coin(coins, px_to_mm_width_ratio, px_to_mm_height_ratio):
         '1e': 0,
         '2e': 0
     }
+    coin_counts_height = coin_counts_width.copy()
 
-    for coin in coins:
+    for idx, coin in enumerate(coins):
         x, y, w, h = coin['bbox']
-        diameter_mm = (w * px_to_mm_width_ratio + h * px_to_mm_height_ratio) / 2
+        diameter_width_mm = w * px_to_mm_width_ratio
+        diameter_height_mm = h * px_to_mm_height_ratio
         
         # Collect all diameters differences and take the minimum
-        diameter_diffs = {
-            '2e': abs(diameter_mm - DIAMETER_2E),
-            '1e': abs(diameter_mm - DIAMETER_1E),
-            '50c': abs(diameter_mm - DIAMETER_50C),
-            '20c': abs(diameter_mm - DIAMETER_20C),
-            '10c': abs(diameter_mm - DIAMETER_10C),
-            '5c': abs(diameter_mm - DIAMETER_5C)
+        width_diameter_diffs = {
+            '2e': abs(diameter_width_mm - DIAMETER_2E),
+            '1e': abs(diameter_width_mm - DIAMETER_1E),
+            '50c': abs(diameter_width_mm - DIAMETER_50C),
+            '20c': abs(diameter_width_mm - DIAMETER_20C),
+            '10c': abs(diameter_width_mm - DIAMETER_10C),
+            '5c': abs(diameter_width_mm - DIAMETER_5C)
         }
         
-        classified_coin = min(diameter_diffs, key=diameter_diffs.get)
-        coin_counts[classified_coin] += 1
+        classified_coin = min(width_diameter_diffs, key=width_diameter_diffs.get)
+        coin_counts_width[classified_coin] += 1
+        
+        
+        # Height based classification
+        height_diameter_diffs = {
+            '2e': abs(diameter_height_mm - DIAMETER_2E),
+            '1e': abs(diameter_height_mm - DIAMETER_1E),
+            '50c': abs(diameter_height_mm - DIAMETER_50C),
+            '20c': abs(diameter_height_mm - DIAMETER_20C),
+            '10c': abs(diameter_height_mm - DIAMETER_10C),
+            '5c': abs(diameter_height_mm - DIAMETER_5C)
+        }
+        
+        classified_coin_height = min(height_diameter_diffs, key=height_diameter_diffs.get)
+        coin_counts_height[classified_coin_height] += 1
+        
+        
+        print(f"   • Coin {idx + 1}: Diameter = {diameter_width_mm:.2f} mm -> Classified as {classified_coin}")
+        print(f"   • Coin {idx + 1}: Diameter = {diameter_height_mm:.2f} mm -> Classified as {classified_coin_height}")
         
 
-    return coin_counts
+    return coin_counts_width, coin_counts_height

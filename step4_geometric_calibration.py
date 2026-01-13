@@ -6,11 +6,12 @@ Find size of black squares in pixels and calculate mm to pixels ratio.
 import cv2
 import numpy as np
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 
 
 # Thresholding function to isolate black squares
-def threshold_black_squares(image, threshold=20):
+def threshold_black_squares(image, threshold=40):
     """
     Apply thresholding to isolate black squares in the image.
 
@@ -27,6 +28,15 @@ def threshold_black_squares(image, threshold=20):
     
     
     _, binary_mask = cv2.threshold(image, threshold, 255, cv2.THRESH_BINARY_INV)
+    
+    # Show detected squares image
+    print("\n[4.1] Thresholding to isolate black squares...")
+    plt.figure(figsize=(6, 6))
+    plt.imshow(binary_mask, cmap='gray')
+    plt.title('Detected Black Squares')
+    plt.axis('off')
+    plt.show()
+    
     return binary_mask
 
 
@@ -45,6 +55,7 @@ def get_square_size(binary_mask):
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
         x, y, w, h = cv2.boundingRect(largest_contour)
+        print(f"Detected black square size: width={w}px, height={h}px")
         return w, h
     else:
         return 0, 0
