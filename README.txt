@@ -51,9 +51,9 @@ How to run:
 Install dependencies:
 `pip install -r requirements.txt`
 Run:
-`python CoinImageProcessingPipeline.py`.
+`python main.py`.
 The script will automatically process
-all images and save results to the output/ directory.
+all images and give the coins classification as output.
 
 Notes:
 The use of Python instead of MATLAB was discussed and approved

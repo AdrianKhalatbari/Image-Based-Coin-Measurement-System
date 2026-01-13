@@ -57,19 +57,20 @@ root/
 
 Simply execute the main script:
 ```bash
-   python CoinImageProcessingPipeline.py
+   python main.py
    ```
 Or if using Python 3 explicitly:
 ```bash
-   python3 CoinImageProcessingPipeline.py
+   python3 main.py
    ```
 
-The script will:
-1. Load and process bias, dark, and flat calibration frames
-2. Apply flat-field correction to all measurement images
-3. Preprocess images to separate coins from background
-4. Detect and segment individual coins
-5. Save all intermediate and final results to the `output/` directory
+The script will load and process bias, dark, and flat calibration frames, then call the function estim_coins that:
+1. Apply flat-field correction to all measurement image given as input
+2. Preprocess images to separate coins from background
+3. Detect and segment individual coins
+3b. Save all intermediate and final results to the `output/` directory (verbose=True)
+4. Retrieve black squares' size and calculate mm-to-pixel ratio
+5. Classify coins based on the diameter
 
 
 ## Pipeline Details
@@ -136,6 +137,37 @@ The script will:
 - `segment_coins()` - Complete segmentation pipeline
 - `create_visualization()` - Generate annotated output images
 
+### Step 4: Geometrical calibration
+
+**Purpose:** Retrieve black squares' size and calculate the mm-to-pixel ratio
+
+**Method:** Thresholding and contour analysis
+
+**Process:**
+1. **Thresholding** - Threshold of the raw image with low value to obtain
+only the black parts of the image (mostly the squares)
+2. **Contour Detection** - Detection of all contours in the binary mask
+obtained during the thresholding phase
+3. **Square Size** - From the contours, select the largest and return width and height
+4. **mm-to-pixels ratio** - Calculate mm_to-pixels ratio, knowing that the black square
+size is 12.5mm x 12.5mm
+
+### Step 5: Coin classification and counting
+
+**Purpose:** Classify coins based on the diameter
+
+**Method:** mm-to-pixels ratio and Nearest Neighbor classification
+
+**Process:**
+1. **Diameter selection** - Select the height of the coin contour and convert
+it to millimeters size using the ratio
+2. **Distance calculation** - From the coin diameter, remove the
+ground truth diameters of each coin type
+3. **Classification** - Classification is done by taking the coin type with
+minimum diameter distance
+4. **Counting** - Each classified coin is added into a counter that takes
+track of each coin type currently classified
+
 ## Output Files
 
 For each processed image, the pipeline generates:
@@ -161,27 +193,45 @@ For each processed image, the pipeline generates:
 ### Detailed Results
 
 **Measurements Set 1:**
-```
+
 | Image | Expected | Detected | Accuracy |
 |-------|----------|----------|----------|
 | _DSC1772 | 6 | 6 | 100% |
-| _DSC1773 | 5 | 2 | 40% |
+| _DSC1773 | 5 | 4 | 80% |
 | _DSC1774 | 8 | 7 | 87.5% |
 | _DSC1775 | 7 | 3 | 42.8% |
 | _DSC1776 | 9 | 9 | 100% |
 | _DSC1777 | 6 | 4 | 66.7% |
-```
+
+| Image | Detected | Correct | Wrong | Accuracy |
+|-------|----------|----------|----------|-|
+| _DSC1772 | 6 | 6 | - | 100% |
+| _DSC1773 | 4 | 3 | 1 | 75% |
+| _DSC1774 | 7 | 4 | 3 | 57.1% |
+| _DSC1775 | 3 | 2 | 1 | 66.7% |
+| _DSC1776 | 9 | 6 | 3 | 66.7% |
+| _DSC1777 | 4 | 4 | - | 100% |
+
 **Measurements Set 2:**
-```
+
 | Image | Expected | Detected | Accuracy |
 |-------|----------|----------|----------|
 | _DSC1778 | 4 | 2 | 50% |
 | _DSC1779 | 8 | 5 | 62.5% |
 | _DSC1780 | 4 | 4 | 100% |
 | _DSC1781 | 5 | 3 | 60% |
-| _DSC1782 | 9 | 6 | 66.7% |
-| _DSC1783 | 5 | 3 | 60% |
-```
+| _DSC1782 | 9 | 8 | 88.9% |
+| _DSC1783 | 5 | 4 | 80% |
+
+| Image | Detected | Correct | Wrong | Accuracy |
+|-------|----------|----------|----------|-|
+| _DSC1778 | 2 | 1 | 1 | 50% |
+| _DSC1779 | 6 | 2 | 4 | 33.3% |
+| _DSC1780 | 4 | 2 | 2 | 50% |
+| _DSC1781 | 3 | 1 | 2 | 33.3% |
+| _DSC1782 | 8 | 3 | 5 | 37.5% |
+| _DSC1783 | 4 | 3 | 1 | 75% |
+
 ### Strengths
 - **Perfect detection on plain backgrounds** (100% accuracy on 3 images)
 - **Robust intensity calibration** - Effectively removes sensor artifacts
@@ -191,6 +241,7 @@ For each processed image, the pipeline generates:
 ### Known Limitations
 - **Coins on textured backgrounds** - Checkerboard patterns cause coins to merge
 - **Touching/overlapping coins** - Detected as single blob
+- **Shadows near coins** - The shadow of the coin increases its diameter, leading to wrong classification
 - **Very small coins** - May fall below minimum area threshold
 
 ### Future Improvements
@@ -243,3 +294,5 @@ Formula ensures corrected image has uniform response across sensor.
   - Range: 0 to 1
   - ~0.785 = perfect circle in square
   - <0.5 = poor bounding box fit
+
+
