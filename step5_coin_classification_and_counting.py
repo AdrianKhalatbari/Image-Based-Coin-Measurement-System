@@ -40,12 +40,12 @@ def classify_coin(coins, px_to_mm_width_ratio, px_to_mm_height_ratio):
         
         # Collect all diameters differences and take the minimum
         diameter_diffs = {
-            '2e': abs(diameter_height_mm - DIAMETER_2E),
-            '1e': abs(diameter_height_mm - DIAMETER_1E),
-            '50c': abs(diameter_height_mm - DIAMETER_50C),
-            '20c': abs(diameter_height_mm - DIAMETER_20C),
+            '5c': abs(diameter_height_mm - DIAMETER_5C),
             '10c': abs(diameter_height_mm - DIAMETER_10C),
-            '5c': abs(diameter_height_mm - DIAMETER_5C)
+            '20c': abs(diameter_height_mm - DIAMETER_20C),
+            '50c': abs(diameter_height_mm - DIAMETER_50C),
+            '1e': abs(diameter_height_mm - DIAMETER_1E),
+            '2e': abs(diameter_height_mm - DIAMETER_2E)
         }
         
         classified_coin = min(diameter_diffs, key=diameter_diffs.get)
