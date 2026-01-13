@@ -23,6 +23,10 @@ def preprocess_image(corrected_image):
             - enhanced_image: CLAHE-enhanced grayscale image
             - binary_mask: Binary mask with filled coin regions
     """
+    
+    # Removing the whitest parts to reduce glare effects with truncation thresholding
+    _, corrected_image = cv2.threshold(corrected_image, 240, 255, cv2.THRESH_TRUNC)
+    
     print("\n[2.1] Bilateral Filter (preserve edges, remove texture)...")
     # Bilateral filter removes checkerboard texture while keeping coin edges sharp
     blurred = cv2.bilateralFilter(corrected_image, 11, 100, 100)

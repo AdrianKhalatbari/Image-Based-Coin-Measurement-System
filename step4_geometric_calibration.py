@@ -29,14 +29,6 @@ def threshold_black_squares(image, threshold=40):
     
     _, binary_mask = cv2.threshold(image, threshold, 255, cv2.THRESH_BINARY_INV)
     
-    # Show detected squares image
-    print("\n[4.1] Thresholding to isolate black squares...")
-    plt.figure(figsize=(6, 6))
-    plt.imshow(binary_mask, cmap='gray')
-    plt.title('Detected Black Squares')
-    plt.axis('off')
-    plt.show()
-    
     return binary_mask
 
 
