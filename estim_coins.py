@@ -31,6 +31,8 @@ def estim_coins(measurement, bias, dark, flat):
 
     # Step 3: Segmentation
     coins, segmented = segment_coins(binary, corrected)
+    
+    print(f"   ✓ Detected {len(coins)} coins")
 
     # Step 4: Geometric Calibration
     binary_squares = threshold_black_squares(corrected)
