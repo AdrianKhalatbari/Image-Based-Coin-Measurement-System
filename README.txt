@@ -34,6 +34,19 @@ Files:
   identify coin-shaped objects. Creates visualizations with contours, bounding
   boxes, centers, and labels.
 
+* step4_geometric_calibration
+  In this file we isolate the black squares from the raw image (easiest for thresholding
+  only the squares), find the size in pixels of one square, chosen using maximum area, and
+  calculate the ratio using the reference measure given in the project specification
+  (square size = 12.5mm x 12.5mm).
+
+* step5_coin_classification_and_counting
+  This is the main file for coin classification and counting. The measurements of the
+  contours (detected coins) found during step 3 are converted from pixels to millimeters
+  using the ratio calculated in step 4. Then, each coin is assigned to one coin type based
+  on the coin diameter, taken as the height of the contour that contains the coin. The value
+  is compared to reference values given in the project specification.
+
 * requirements.txt
   This is a list of all Python library dependencies with minimum versions required to run
   the project.

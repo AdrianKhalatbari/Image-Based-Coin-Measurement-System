@@ -9,14 +9,18 @@ This project implements a complete image processing pipeline for detecting and s
 1. **Intensity Calibration** - Flat-field correction to remove sensor artifacts
 2. **Preprocessing** - Edge detection and morphological operations to separate coins
 3. **Segmentation** - Contour analysis and shape filtering to extract individual coins
+4. **Geometrical calibration** - Retrieve black squares' size and calculate the mm-to-pixel ratio
+5. **Coin classification and counting** - Classify coins based on the diameter
 
 ## Project Structure
 
 ```
 root/
-├── step1_calibration.py        # Step 1: Intensity calibration
-├── step2_preprocessing.py      # Step 2: Preprocessing to separate coins
-├── step3_segmentation.py       # Step 3: Coin extraction and segmentation
+├── step1_calibration.py                        # Step 1: Intensity calibration
+├── step2_preprocessing.py                      # Step 2: Preprocessing to separate coins
+├── step3_segmentation.py                       # Step 3: Coin extraction and segmentation
+├── step4_geometric_calibration.py              # Step 4: Geometric calibration
+├── step5_coin_classification_and_counting.py   # Step 5: Coin classification and counting
 ├── main.py                     # Main pipeline integration script
 ├── requirements.txt            # Python dependencies
 ├── README.md                   # This file
