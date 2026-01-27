@@ -84,7 +84,7 @@ def process_measurement_images(measurements_dir, output_dir, bias_frame, dark_fr
     image_paths = [p for p in image_paths if p.suffix.lower() in ['.jpg', '.jpeg', '.png', '.tif', '.tiff', '.bmp']]
 
     if not image_paths:
-        print(f"⚠ No images found in {measurements_dir}")
+        print(f" No images found in {measurements_dir}")
         return
 
     print(f"Found {len(image_paths)} measurement images\n")
@@ -97,7 +97,7 @@ def process_measurement_images(measurements_dir, output_dir, bias_frame, dark_fr
         # Load raw image
         raw_image = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
         if raw_image is None:
-            print(f"   ⚠ Failed to load image: {img_path.name}")
+            print(f"   Failed to load image: {img_path.name}")
             continue
 
         raw_image = raw_image.astype(np.float32)
@@ -127,7 +127,7 @@ def process_measurement_images(measurements_dir, output_dir, bias_frame, dark_fr
             output_dir / f"image_{idx + 1}_pipeline.png"
         )
 
-        print(f"✅ Image {idx + 1} processing completed!")
+        print(f" Image {idx + 1} processing completed!")
         print(f"   • Detected {len(coins)} coins")
         print(f"   • Results saved to: {output_dir}/")
 
@@ -169,7 +169,7 @@ def main():
         )
 
     print("\n" + "=" * 60)
-    print("ALL PROCESSING COMPLETED! ✅")
+    print("ALL PROCESSING COMPLETED!")
     print("=" * 60)
     print("\nCheck the 'output' folder for results.")
 

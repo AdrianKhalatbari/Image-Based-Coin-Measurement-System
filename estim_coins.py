@@ -13,7 +13,7 @@ SQUARE_MM_SIZE = 12.5  # Size of the black square in mm
 output_dir = Path("output")
 output_dir.mkdir(exist_ok=True)
 
-def estim_coins(measurement, bias, dark, flat, image_index, verbose=False):
+def estim_coins(measurement, bias, dark, flat, image_index=1, verbose=False):
     """
     Estimate and classify coins in the given image.
 
@@ -22,10 +22,24 @@ def estim_coins(measurement, bias, dark, flat, image_index, verbose=False):
         bias (np.ndarray): Bias frame
         dark (np.ndarray): Dark frame
         flat (np.ndarray): Flat field frame
-        
+        image_index (int): Index of the image being processed
     Returns:
         dict: Dictionary with counts of each coin type
     """    
+    
+    # Step 0: Convert to single channel grayscale if needed
+    if len(measurement.shape) == 3 and measurement.shape[2] == 3:
+        measurement = cv2.cvtColor(measurement.astype(np.uint8), cv2.COLOR_BGR2GRAY).astype(np.float32)
+    
+    if len(bias.shape) == 3 and bias.shape[2] == 3:
+        bias = cv2.cvtColor(bias.astype(np.uint8), cv2.COLOR_BGR2GRAY).astype(np.float32)
+        
+    if len(dark.shape) == 3 and dark.shape[2] == 3:
+        dark = cv2.cvtColor(dark.astype(np.uint8), cv2.COLOR_BGR2GRAY).astype(np.float32)
+        
+    if len(flat.shape) == 3 and flat.shape[2] == 3:
+        flat = cv2.cvtColor(flat.astype(np.uint8), cv2.COLOR_BGR2GRAY).astype(np.float32)
+    
     # Step 1: Apply calibration
     corrected = apply_flat_field_correction(measurement, bias, dark, flat)
 
@@ -63,6 +77,6 @@ def estim_coins(measurement, bias, dark, flat, image_index, verbose=False):
     px_to_mm_height_ratio = mm_to_pixels_ratio(SQUARE_MM_SIZE, square_height_px)
 
     # Step 5: Coin Classification and Counting
-    coin_counts = classify_coin(coins, px_to_mm_width_ratio, px_to_mm_height_ratio)
+    coin_counts = classify_coin(coins, px_to_mm_width_ratio, px_to_mm_height_ratio, verbose=verbose)
 
     return coin_counts

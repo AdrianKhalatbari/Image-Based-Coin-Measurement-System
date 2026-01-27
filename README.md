@@ -203,7 +203,7 @@ For each processed image, the pipeline generates:
 | _DSC1772 | 6 | 6 | 100% |
 | _DSC1773 | 5 | 4 | 80% |
 | _DSC1774 | 8 | 7 | 87.5% |
-| _DSC1775 | 7 | 3 | 42.8% |
+| _DSC1775 | 7 | 3 - 4 | 42.8% - 57.1% |
 | _DSC1776 | 9 | 9 | 100% |
 | _DSC1777 | 6 | 4 | 66.7% |
 
@@ -211,9 +211,9 @@ For each processed image, the pipeline generates:
 |-------|----------|----------|----------|-|
 | _DSC1772 | 6 | 6 | - | 100% |
 | _DSC1773 | 4 | 3 | 1 | 75% |
-| _DSC1774 | 7 | 4 | 3 | 57.1% |
-| _DSC1775 | 3 | 2 | 1 | 66.7% |
-| _DSC1776 | 9 | 6 | 3 | 66.7% |
+| _DSC1774 | 7 | 6 | 1 | 85.7% |
+| _DSC1775 | 3 - 4 | 2 | 1 - 2 | 66.7% - 50% |
+| _DSC1776 | 9 | 9 | - | 100% |
 | _DSC1777 | 4 | 4 | - | 100% |
 
 **Measurements Set 2:**
@@ -221,7 +221,7 @@ For each processed image, the pipeline generates:
 | Image | Expected | Detected | Accuracy |
 |-------|----------|----------|----------|
 | _DSC1778 | 4 | 2 | 50% |
-| _DSC1779 | 8 | 5 | 62.5% |
+| _DSC1779 | 8 | 6 - 7 | 62.5% - 87.5% |
 | _DSC1780 | 4 | 4 | 100% |
 | _DSC1781 | 5 | 3 | 60% |
 | _DSC1782 | 9 | 8 | 88.9% |
@@ -229,12 +229,12 @@ For each processed image, the pipeline generates:
 
 | Image | Detected | Correct | Wrong | Accuracy |
 |-------|----------|----------|----------|-|
-| _DSC1778 | 2 | 1 | 1 | 50% |
-| _DSC1779 | 6 | 2 | 4 | 33.3% |
-| _DSC1780 | 4 | 2 | 2 | 50% |
-| _DSC1781 | 3 | 1 | 2 | 33.3% |
-| _DSC1782 | 8 | 3 | 5 | 37.5% |
-| _DSC1783 | 4 | 3 | 1 | 75% |
+| _DSC1778 | 2 | 2 | - | 100% |
+| _DSC1779 | 6 | 4 | 2 | 66.7% |
+| _DSC1780 | 4 | 3 | 1 | 75% |
+| _DSC1781 | 3 | 2 | 1 | 66.7% |
+| _DSC1782 | 8 | 5 | 3 | 62.5% |
+| _DSC1783 | 4 | 4 | - | 100% |
 
 ### Strengths
 - **Perfect detection on plain backgrounds** (100% accuracy on 3 images)

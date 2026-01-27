@@ -34,13 +34,13 @@ Files:
   identify coin-shaped objects. Creates visualizations with contours, bounding
   boxes, centers, and labels.
 
-* step4_geometric_calibration
+* step4_geometric_calibration.py
   In this file we isolate the black squares from the raw image (easiest for thresholding
   only the squares), find the size in pixels of one square, chosen using maximum area, and
   calculate the ratio using the reference measure given in the project specification
   (square size = 12.5mm x 12.5mm).
 
-* step5_coin_classification_and_counting
+* step5_coin_classification_and_counting.py
   This is the main file for coin classification and counting. The measurements of the
   contours (detected coins) found during step 3 are converted from pixels to millimeters
   using the ratio calculated in step 4. Then, each coin is assigned to one coin type based
@@ -54,6 +54,21 @@ Files:
 * data/
   This directory contains input calibration and measurement images.
   It is not in the final repository due to project description.
+  
+  IMPORTANT - Data Directory Structure:
+  When extracting the source files downloaded from Moodle, place them in the data directory
+  following this structure:
+  data/DIIP-images-{category}/DIIP-images/{category-name}
+  
+  For example:
+  - data/DIIP-images-bias/DIIP-images/Bias
+  - data/DIIP-images-dark/DIIP-images/Dark
+  - data/DIIP-images-flat/DIIP-images/Flat
+  - data/DIIP-images-measurements-1/DIIP-images/Measurements
+  - data/DIIP-images-measurements-2/DIIP-images/Measurements
+  
+  This is the same directory structure that results when you extract the source files
+  directly from Moodle into the data folder.
 
 * output/
   Stores all generated results including corrected images, enhanced images,
