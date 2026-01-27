@@ -7,9 +7,9 @@ import cv2
 import numpy as np
 
 
-def preprocess_image(corrected_image):
+def preprocess_image(corrected_image, verbose=False):
     """
-    Preprocess image to separate coins from background.
+    Preprocess image to separate coins from the background.
 
     Uses bilateral filtering to remove texture (like checkerboard patterns),
     CLAHE for contrast enhancement, Canny edge detection to find coin boundaries,
@@ -26,17 +26,25 @@ def preprocess_image(corrected_image):
     
     # Removing the whitest parts to reduce glare effects with truncation thresholding
     _, corrected_image = cv2.threshold(corrected_image, 240, 255, cv2.THRESH_TRUNC)
-    
-    print("\n[2.1] Bilateral Filter (preserve edges, remove texture)...")
+
+    if verbose:
+        print("=" * 60)
+        print("STEP 2: Preprocessing to Separate Coins")
+        print("=" * 60)
+
+    if verbose:
+        print("\n[2.1] Bilateral Filter (preserve edges, remove texture)...")
     # Bilateral filter removes checkerboard texture while keeping coin edges sharp
     blurred = cv2.bilateralFilter(corrected_image, 11, 100, 100)
 
-    print("[2.2] Contrast Enhancement (CLAHE)...")
+    if verbose:
+        print("[2.2] Contrast Enhancement (CLAHE)...")
     # Adaptive histogram equalization for better contrast
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     enhanced = clahe.apply(blurred)
 
-    print("[2.3] Edge-based preprocessing...")
+    if verbose:
+        print("[2.3] Edge-based preprocessing...")
     # Canny edge detection to find coin boundaries
     edges = cv2.Canny(enhanced, 20, 80)
 
@@ -48,11 +56,12 @@ def preprocess_image(corrected_image):
     kernel_close = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     edges_closed = cv2.morphologyEx(edges_dilated, cv2.MORPH_CLOSE, kernel_close, iterations=2)
 
-    print("[2.4] Filling coin regions...")
+    if verbose:
+        print("[2.4] Filling enclosed regions to create solid coin masks...")
     # Find contours and fill enclosed regions
     contours_temp, _ = cv2.findContours(edges_closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Create filled mask
+    # Create a filled mask
     filled = np.zeros_like(edges_closed)
     for contour in contours_temp:
         area = cv2.contourArea(contour)
@@ -67,5 +76,7 @@ def preprocess_image(corrected_image):
     kernel_dilate = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     final = cv2.dilate(filled_cleaned, kernel_dilate, iterations=1)
 
-    print("✅ Preprocessing completed!")
+    if verbose:
+        print(" Preprocessing completed!")
+    
     return enhanced, final

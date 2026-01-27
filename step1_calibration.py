@@ -13,7 +13,7 @@ def load_images_from_directory(directory):
     Load all images from a specified directory.
 
     Args:
-        directory (Path or str): Path to directory containing images
+        directory (Path or str): Path to a directory containing images
 
     Returns:
         list: List of images as numpy arrays (float32)
@@ -22,7 +22,7 @@ def load_images_from_directory(directory):
     images = []
 
     if not directory.exists():
-        print(f"   ⚠ Directory does not exist: {directory}")
+        print(f"    Directory does not exist: {directory}")
         return images
 
     for img_path in sorted(directory.glob("*")):
@@ -36,7 +36,7 @@ def load_images_from_directory(directory):
 
 def compute_master_frame(images):
     """
-    Compute master frame by averaging multiple images.
+    Compute the master frame by averaging multiple images.
 
     Args:
         images (list): List of images as numpy arrays
@@ -49,7 +49,7 @@ def compute_master_frame(images):
     return np.mean(images, axis=0).astype(np.float32)
 
 
-def calibrate_intensity(data_dir="data"):
+def calibrate_intensity(data_dir="data", verbose=False):
     """
     Perform intensity calibration by computing master bias, dark, and flat frames.
 
@@ -62,40 +62,54 @@ def calibrate_intensity(data_dir="data"):
     Returns:
         tuple: (bias_frame, dark_frame, flat_frame) as numpy arrays
     """
-    print("=" * 60)
-    print("STEP 1: INTENSITY CALIBRATION/CORRECTION")
-    print("=" * 60)
+    
+    if verbose:
+        print("=" * 60)
+        print("STEP 1: INTENSITY CALIBRATION/CORRECTION")
+        print("=" * 60)
 
     data_path = Path(data_dir)
 
     # Load and compute master bias frame
-    print("\n[1/3] Computing Master Bias Frame...")
+    if verbose:
+        print("\n[1/3] Computing Master Bias Frame...")
+        
     bias_dir = data_path / "DIIP-images-bias" / "DIIP-images" / "Bias"
     bias_images = load_images_from_directory(bias_dir)
 
     if bias_images:
         bias_frame = compute_master_frame(bias_images)
-        print(f"   ✓ Loaded {len(bias_images)} bias images")
-        print(f"   ✓ Master bias shape: {bias_frame.shape}")
+        
+        if verbose:
+            print(f"   ✓ Loaded {len(bias_images)} bias images")
+            print(f"   ✓ Master bias shape: {bias_frame.shape}")
     else:
-        print("   ⚠ No bias images found. Using zero bias.")
+        if verbose:
+            print("    No bias images found. Using zero bias.")
         bias_frame = np.zeros((100, 100), dtype=np.float32)
 
-    # Load and compute master dark frame
-    print("\n[2/3] Computing Master Dark Frame...")
+    # Load and compute the master dark frame
+    if verbose:
+        print("\n[2/3] Computing Master Dark Frame...")
     dark_dir = data_path / "DIIP-images-dark" / "DIIP-images" / "Dark"
     dark_images = load_images_from_directory(dark_dir)
 
     if dark_images:
         dark_frame = compute_master_frame(dark_images)
-        print(f"   ✓ Loaded {len(dark_images)} dark images")
-        print(f"   ✓ Master dark shape: {dark_frame.shape}")
+        
+        if verbose:
+            print(f"   ✓ Loaded {len(dark_images)} dark images")
+            print(f"   ✓ Master dark shape: {dark_frame.shape}")
+            
     else:
-        print("   ⚠ No dark images found. Using zero dark.")
+        if verbose:
+            print("   No dark images found. Using zero dark.")
         dark_frame = np.zeros_like(bias_frame)
 
-    # Load and compute master flat frame
-    print("\n[3/3] Computing Master Flat Frame...")
+    # Load and compute the master flat frame
+    if verbose:
+        print("\n[3/3] Computing Master Flat Frame...")
+    
     flat_dir = data_path / "DIIP-images-flat" / "DIIP-images" / "Flat"
     flat_images = load_images_from_directory(flat_dir)
 
@@ -107,14 +121,19 @@ def calibrate_intensity(data_dir="data"):
         flat_frame = np.where(flat_frame < 1.0, 1.0, flat_frame)
         # Normalize flat frame
         flat_frame = flat_frame / np.mean(flat_frame)
-        print(f"   ✓ Loaded {len(flat_images)} flat images")
-        print(f"   ✓ Master flat shape: {flat_frame.shape}")
-        print(f"   ✓ Flat frame normalized")
+        
+        if verbose:
+            print(f"   ✓ Loaded {len(flat_images)} flat images")
+            print(f"   ✓ Master flat shape: {flat_frame.shape}")
+            print(f"   ✓ Flat frame normalized")
     else:
-        print("   ⚠ No flat images found. Using unity flat.")
+        if verbose:
+            print("   No flat images found. Using unity flat.")
         flat_frame = np.ones_like(bias_frame)
 
-    print("\n✅ Intensity calibration completed!")
+    if verbose:
+        print("\n Intensity calibration completed!")
+        
     return bias_frame, dark_frame, flat_frame
 
 

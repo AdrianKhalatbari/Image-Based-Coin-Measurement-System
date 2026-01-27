@@ -1,14 +1,10 @@
 """
 Step 4: Geometric calibration
-Find size of black squares in pixels and calculate mm to pixels ratio.
+Find size of black squares in pixels and calculate mm-to-pixels ratio.
 """
 
 import cv2
 import numpy as np
-from pathlib import Path
-import matplotlib.pyplot as plt
-
-
 
 # Thresholding function to isolate black squares
 def threshold_black_squares(image, threshold=40):
@@ -32,7 +28,7 @@ def threshold_black_squares(image, threshold=40):
     return binary_mask
 
 
-def get_square_size(binary_mask):
+def get_square_size(binary_mask, verbose=False):
     """
     Calculate the length of the black square in pixels.
 
@@ -42,12 +38,19 @@ def get_square_size(binary_mask):
     Returns:
         float: Length of the black square in pixels
     """
-    
+    if verbose:
+        print("=" * 60)
+        print("STEP 4: Geometric calibration")
+        print("=" * 60)
+        
     contours, _ = cv2.findContours(binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
         x, y, w, h = cv2.boundingRect(largest_contour)
-        print(f"Detected black square size: width={w}px, height={h}px")
+        
+        if verbose:
+            print(f"Detected black square size: width={w}px, height={h}px")
+            
         return w, h
     else:
         return 0, 0
@@ -55,14 +58,14 @@ def get_square_size(binary_mask):
     
 def mm_to_pixels_ratio(real_size_mm, pixel_size):
     """
-    Calculate the mm to pixels ratio.
+    Calculate the mm-to-pixels ratio.
 
     Args:
         real_size_mm (float): Real-world size in millimeters
         pixel_size (float): Size in pixels
 
     Returns:
-        float: mm to pixels ratio
+        float: mm-to-pixels ratio
     """
     if pixel_size == 0:
         return 0

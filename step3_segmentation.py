@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 
-def segment_coins(binary_image, original_image, image_name=""):
+def segment_coins(binary_image, original_image, image_name="", verbose=False):
     """
     Detect and segment individual coins from binary mask.
 
@@ -24,13 +24,19 @@ def segment_coins(binary_image, original_image, image_name=""):
             - coins: List of dictionaries containing coin properties
             - segmented_image: Color image with detected coins highlighted
     """
-    print("\n[3.1] Finding contours...")
+    if verbose:
+        print("=" * 60)
+        print("STEP 3: Segmentation")
+        print("=" * 60)
+        print("\n[3.1] Finding contours...")
+        
     contours, hierarchy = cv2.findContours(
         binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
-    print(f"   ✓ Found {len(contours)} contours")
-
-    print("[3.2] Filtering coin contours...")
+    if verbose:
+        print(f"   ✓ Found {len(contours)} contours")
+        print("[3.2] Filtering coin contours...")
+        
     coins = []
     rejected_coins = []
 
@@ -39,10 +45,11 @@ def segment_coins(binary_image, original_image, image_name=""):
     min_area = image_area * 0.006  # 0.6% of image
     max_area = image_area * 0.12  # 12% of image
 
-    print(f"   📸 Image: {image_name}")
-    print(f"   📏 Image area: {image_area}")
-    print(f"   📏 Min coin area: {min_area:.0f}")
-    print(f"   📏 Max coin area: {max_area:.0f}")
+    if verbose:
+        print(f"   Image: {image_name}")
+        print(f"   Image area: {image_area}")
+        print(f"   Min coin area: {min_area:.0f}")
+        print(f"   Max coin area: {max_area:.0f}")
 
     for i, contour in enumerate(contours):
         area = cv2.contourArea(contour)
@@ -63,7 +70,7 @@ def segment_coins(binary_image, original_image, image_name=""):
             hull_area = cv2.contourArea(hull)
             solidity = area / hull_area if hull_area > 0 else 0
 
-            # Extent: Area/BoundingBoxArea (how well it fills bounding box)
+            # Extent: Area/BoundingBoxArea (how well it fills the bounding box)
             bbox_area = w * h
             extent = area / bbox_area if bbox_area > 0 else 0
 
@@ -85,7 +92,8 @@ def segment_coins(binary_image, original_image, image_name=""):
                     'extent': extent,
                     'center': (x + w // 2, y + h // 2)
                 })
-                print(f"   ✓ Coin {len(coins)}: area={area:.0f}, circ={circularity:.2f}, "
+                if verbose:
+                    print(f"   ✓ Coin {len(coins)}: area={area:.0f}, circ={circularity:.2f}, "
                       f"aspect={aspect_ratio:.2f}, solid={solidity:.2f}, extent={extent:.2f}")
             else:
                 rejected_coins.append({'area': area})
@@ -95,27 +103,33 @@ def segment_coins(binary_image, original_image, image_name=""):
                         reason.append(f"aspect={aspect_ratio:.2f}")
                     if not (circularity > 0.3 or solidity > 0.75 or extent > 0.65):
                         reason.append(f"shape metrics too low")
-                    print(f"   ✗ REJECTED: area={area:.0f}, {', '.join(reason)}")
+                        
+                    if verbose:
+                        print(f"   ✗ REJECTED: area={area:.0f}, {', '.join(reason)}")
 
-        elif area < min_area and area > min_area * 0.4:
-            print(f"   ⚠ Too small: area={area:.0f} (need >{min_area:.0f})")
-        elif area >= max_area and area < max_area * 2.0:
-            print(f"   ⚠ Too large (merged coins?): area={area:.0f} (need <{max_area:.0f})")
+        elif area < min_area and area > min_area * 0.4 and verbose:
+            print(f"   Too small: area={area:.0f} (need >{min_area:.0f})")
+        elif area >= max_area and area < max_area * 2.0 and verbose:
+            print(f"   Too large (merged coins?): area={area:.0f} (need <{max_area:.0f})")
 
-    print(f"   ✓ Detected {len(coins)} coins after filtering")
-    if rejected_coins:
+    if verbose:
+        print(f"   ✓ Detected {len(coins)} coins after filtering")
+    
+    if rejected_coins and verbose:
         print(f"   ✗ Rejected {len(rejected_coins)} potential coins")
 
     # Create visualization
     segmented_image = create_visualization(original_image, coins)
 
-    print("✅ Segmentation completed!")
+    if verbose:
+        print(" Segmentation completed!")
+        
     return coins, segmented_image
 
 
 def create_visualization(original_image, coins):
     """
-    Create visualization with detected coins highlighted.
+    Create a visualization with detected coins highlighted.
 
     Draws contours, bounding boxes, center points, and labels on the image.
 
